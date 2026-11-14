@@ -2,6 +2,8 @@
 
 **Let ChatGPT talk directly with your Nomi.ai companions.**
 
+**Version:** `0.1.0` · **Source:** [GitHub — LisaOlsson/NomiBridge](https://github.com/LisaOlsson/NomiBridge)
+
 Nomi Bridge connects your existing ChatGPT conversations with your existing [Nomi.ai](https://nomi.ai/) companions. ChatGPT can find your Nomis, send them messages, receive their replies, and carry on a conversation without manually copying messages between apps.
 
 The integration uses Nomi's [official API](https://api.nomi.ai/docs/) and the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). It does **not** create a separate assistant through the OpenAI API, so you can use the context and memory available in your regular ChatGPT conversations.
@@ -60,10 +62,12 @@ The source is included in this repository:
 Node.js 18 or later is recommended for local checks:
 
 ```bash
-node nomi.test.mjs
-bash scripts/build.sh
-node scripts/validate-artifact.mjs
+npm test
+npm run build
+npm run validate
 ```
+
+The same checks run automatically through GitHub Actions on pushes and pull requests.
 
 These commands use mocked Nomi responses and do not send real messages. The generated `dist/` folder is ignored by Git.
 
@@ -194,6 +198,10 @@ The installation above describes a private, single-user deployment. A shared hos
 - [Creating and using ChatGPT Sites](https://help.openai.com/en/articles/20001339-creating-and-using-chatgpt-sites)
 - [Hosting a plugin with ChatGPT Sites](https://help.openai.com/en/articles/20001547-hosting-a-plugin-with-chatgpt-sites)
 
+## Versioning
+
+Nomi Bridge uses [Semantic Versioning](https://semver.org/). The current source version is **0.1.0**. The version in `package.json` matches the version advertised by the MCP server during initialization; the test suite checks that they stay in sync.
+
 ## Contributing
 
 Issues, improvements, and pull requests are welcome. Please remove API keys and private conversation data from any logs or examples you share.
@@ -201,6 +209,13 @@ Issues, improvements, and pull requests are welcome. Please remove API keys and 
 ## License
 
 Nomi Bridge is released under the [MIT License](LICENSE).
+
+## Author and copyright
+
+Created by **Lisa Olsson**. Copyright © 2026 Lisa Olsson.
+
+- **GitHub:** [LisaOlsson](https://github.com/LisaOlsson) · [NomiBridge repository](https://github.com/LisaOlsson/NomiBridge)
+- **Website:** [Bits by Lisa](https://www.bitsbylisa.se/)
 
 ## Disclaimer
 

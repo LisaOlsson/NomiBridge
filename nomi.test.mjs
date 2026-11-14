@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import worker, { handleRequest } from './worker/index.js';
 
 // Adapted from the supplied starter test. Every network call is mocked.
@@ -25,6 +26,9 @@ async function rpc(method, params = {}, env = { NOMI_API_KEY: key }, fetchFn = m
   return response.json();
 }
 assert.deepEqual((await rpc('server/discover')).result.supportedVersions, ['2026-07-28']);
+const pkg = JSON.parse(await readFile(new URL('./package.json', import.meta.url), 'utf8'));
+assert.match(pkg.version, /^\d+\.\d+\.\d+$/, 'Package version must use SemVer');
+assert.equal((await rpc('initialize', { protocolVersion: '2026-07-28' })).result.serverInfo.version, pkg.version, 'MCP server and package versions must match');
 const tools = (await rpc('tools/list')).result.tools;
 assert.deepEqual(tools.map(t => t.name), ['list_nomis', 'message_nomi']);
 assert.equal(tools[1].annotations.readOnlyHint, false);
