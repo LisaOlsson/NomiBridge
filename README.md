@@ -143,11 +143,11 @@ Nomi documents a limit of **400 characters per message for free accounts** and *
 
 ### Timeouts and missing replies
 
-Nomi can return **HTTP 500 / `NoReply`** if a reply isn't available in time. During testing, messages sometimes appeared in the Nomi chat and received responses even though the API call returned an error.
+Some Nomi AI versions take longer to generate a reply than the API's timeout allows. In that case, Nomi Bridge may return **HTTP 500 / `NoReply`** even though your message was delivered and the Nomi eventually responded.
 
-**Do not automatically retry a failed message POST.** The message may already have been delivered, and retrying could send a duplicate. When delivery cannot be confirmed, report its status as unknown and check the Nomi conversation before resending.
+**The reply may still be visible in the companion's conversation on Nomi.ai**, even though ChatGPT did not receive it through the bridge. Open the chat on the Nomi side to read the reply and confirm what happened.
 
-Some Nomi AI versions take longer to generate replies than the API's response timeout allows, which can result in `NoReply` errors even when the companion eventually responds. If this happens frequently, try switching that Nomi to another AI version. Avoid automatically resending a failed message, since it may already have been delivered.
+**Do not automatically retry a failed message POST.** It could send a duplicate. If timeouts occur frequently with a particular Nomi, try switching that companion to another AI version; some respond faster than others.
 
 ## Security and privacy
 
