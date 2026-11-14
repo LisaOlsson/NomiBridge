@@ -147,7 +147,7 @@ Nomi can return **HTTP 500 / `NoReply`** if a reply isn't available in time. Dur
 
 **Do not automatically retry a failed message POST.** The message may already have been delivered, and retrying could send a duplicate. When delivery cannot be confirmed, report its status as unknown and check the Nomi conversation before resending.
 
-A companion's model may affect response speed, but a faster model does not guarantee that timeouts will disappear.
+Some Nomi AI versions take longer to generate replies than the API's response timeout allows, which can result in `NoReply` errors even when the companion eventually responds. If this happens frequently, try switching that Nomi to another AI version. Avoid automatically resending a failed message, since it may already have been delivered.
 
 ## Security and privacy
 
