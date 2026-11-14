@@ -44,6 +44,29 @@ Your ChatGPT conversation
 
 When you publish a ChatGPT Site with MCP tools, ChatGPT provisions its associated plugin. Install the plugin once, then use it in your ordinary ChatGPT conversations. **Work is needed to build or deploy the Site, not to chat with your Nomis afterward.**
 
+## Source layout and local checks
+
+The source is included in this repository:
+
+| Path | Purpose |
+| --- | --- |
+| `worker/index.js` | Nomi API adapter, MCP tool handlers, and the private status page. |
+| `nomi.test.mjs` | Mock-network tests for MCP calls, replies, errors, and no-retry behavior. |
+| `scripts/build.sh` | Builds the Site artifact in `dist/`. |
+| `scripts/validate-artifact.mjs` | Checks the generated artifact. |
+| `.openai/hosting.json` | Site capability configuration; Work assigns the deployment's own Site identity. |
+| `.env.example` | Name of the server-side API-key setting. |
+
+Node.js 18 or later is recommended for local checks:
+
+```bash
+node nomi.test.mjs
+bash scripts/build.sh
+node scripts/validate-artifact.mjs
+```
+
+These commands use mocked Nomi responses and do not send real messages. The generated `dist/` folder is ignored by Git.
+
 ## Requirements
 
 - A Nomi.ai account with API access and an API key.
