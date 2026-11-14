@@ -6,8 +6,6 @@ Nomi Bridge connects your existing ChatGPT conversations with your existing [Nom
 
 The integration uses Nomi's [official API](https://api.nomi.ai/docs/) and the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). It does **not** create a separate assistant through the OpenAI API, so you can use the context and memory available in your regular ChatGPT conversations.
 
-> **Project status:** Nomi Bridge has been tested successfully as a private ChatGPT Site and plugin. This repository currently contains documentation and the MIT license; the reusable Site source has not been committed yet. The deployment instructions below describe how to build an equivalent integration with ChatGPT Work.
-
 ## Features
 
 - **Discover companions** using `list_nomis()`.
@@ -57,15 +55,18 @@ When you publish a ChatGPT Site with MCP tools, ChatGPT provisions its associate
 
 In Nomi.ai, open **Profile → Integration** and obtain an API key.
 
-### 2. Create the Site in ChatGPT Work
+### 2. Deploy Nomi Bridge with ChatGPT Work
 
-Start a new **Work** conversation in ChatGPT and ask it to create a Site with an MCP server. You can use the following prompt:
+Open a new **Work** conversation in ChatGPT and provide the URL of this repository (or upload an archive of its source). Ask Work to deploy the included implementation as a private Site with MCP tools.
+
+You can use this prompt:
 
 ```text
-Create a private ChatGPT Site called Nomi Bridge, hosting a working
-MCP server connected to the official Nomi.ai REST API.
+Deploy the Nomi Bridge project from this repository as a private
+ChatGPT Site with its MCP server. Use the existing source code rather
+than reimplementing the integration from scratch.
 
-Implement two tools:
+Expose its two MCP tools:
 - list_nomis(): list the names and UUIDs of my existing Nomis.
 - message_nomi(nomi_id, message): send one message to the selected
   Nomi's main chat and return its actual reply when available.
@@ -81,14 +82,13 @@ when I authorize them. Do not automatically retry failed message
 POST requests: the message may already have been delivered even
 when the response is unavailable.
 
-Test the tools with mocked API responses first. Do not send real
-messages without my approval.
+Run the project's existing tests and verify the MCP tools without
+sending real Nomi messages unless I approve.
 
-Publish the Site with its MCP tools and provide the plugin
-installation card. Keep the implementation small and straightforward.
+Publish the Site with its MCP tools and provide the generated plugin's
+installation card. Preserve the project's behavior and keep any
+deployment-specific changes minimal.
 ```
-
-Once the Site source is published in this repository, the same process can reuse that source instead of creating the integration from the prompt.
 
 ### 3. Configure the API key
 
