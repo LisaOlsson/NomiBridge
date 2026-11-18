@@ -30,7 +30,7 @@ const pkg = JSON.parse(await readFile(new URL('./package.json', import.meta.url)
 assert.match(pkg.version, /^\d+\.\d+\.\d+$/, 'Package version must use SemVer');
 assert.equal((await rpc('initialize', { protocolVersion: '2026-07-28' })).result.serverInfo.version, pkg.version, 'MCP server and package versions must match');
 const tools = (await rpc('tools/list')).result.tools;
-assert.deepEqual(tools.map(t => t.name), ['list_nomis', 'message_nomi']);
+assert.deepEqual(tools.map(t => t.name), ['list_nomis', 'message_nomi', 'list_rooms', 'create_room', 'message_room', 'request_room_reply']);
 assert.equal(tools[1].annotations.readOnlyHint, false);
 assert.equal(tools[1].annotations.idempotentHint, false);
 assert.equal(calls.length, 0, 'Discovery must never contact Nomi');

@@ -1,10 +1,10 @@
 {
   "name": "nomi-bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node nomi.test.mjs",
+    "test": "node nomi.test.mjs && node rooms.test.mjs",
     "build": "bash scripts/build.sh",
     "validate": "node scripts/validate-artifact.mjs"
   }
