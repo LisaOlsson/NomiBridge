@@ -223,7 +223,7 @@ The installation above describes a private, single-user deployment. A shared hos
 
 ## Versioning
 
-Nomi Bridge uses [Semantic Versioning](https://semver.org/). The current development source version is **0.2.0**. The released `0.1.0` implementation remains available on the `main` branch until the Rooms changes are merged. The version in `package.json` matches the version advertised by the MCP server during initialization; the test suite checks that they stay in sync.
+Nomi Bridge uses [Semantic Versioning](https://semver.org/). The current source version is **0.2.0**. Rooms support is being tested before its release; the earlier `0.1.0` version is the initial individual-chat release. The version in `package.json` matches the version advertised by the MCP server during initialization; the test suite checks that they stay in sync.
 
 ## Contributing
 
