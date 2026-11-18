@@ -2,7 +2,7 @@
 
 **Let ChatGPT talk directly with your Nomi.ai companions.**
 
-**Version:** `0.1.0` · **Source:** [GitHub — LisaOlsson/NomiBridge](https://github.com/LisaOlsson/NomiBridge)
+**Version:** `0.2.0` (Rooms support in development) · **Source:** [GitHub — LisaOlsson/NomiBridge](https://github.com/LisaOlsson/NomiBridge)
 
 Nomi Bridge connects your existing ChatGPT conversations with your existing [Nomi.ai](https://nomi.ai/) companions. ChatGPT can find your Nomis, send them messages, receive their replies, and carry on a conversation without manually copying messages between apps.
 
@@ -12,6 +12,7 @@ The integration uses Nomi's [official API](https://api.nomi.ai/docs/) and the [M
 
 - **Discover companions** using `list_nomis()`.
 - **Talk to existing Nomis** using `message_nomi(nomi_id, message)`.
+- **Work with Rooms**: discover group chats, create a Room, send messages, and request a chosen Nomi's reply.
 - **Have longer conversations** with follow-up messages from ChatGPT.
 - **Keep your regular ChatGPT context**, rather than starting over with a separate API assistant.
 - **Experiment with in-character and out-of-character conversations**, including the `[OOC: ...]` convention.
@@ -24,15 +25,19 @@ Messages are sent to a Nomi's existing main chat, not to a duplicate character.
 | --- | --- |
 | `list_nomis()` | Lists the names and IDs of your Nomis without sending any messages. |
 | `message_nomi(nomi_id, message)` | Sends one message to a Nomi and returns its response, when available. |
+| `list_rooms()` | Lists Rooms and their Nomi participants. |
+| `create_room(name, nomi_ids, note?, backchanneling_enabled?)` | Creates a Room with 1–10 existing Nomis. |
+| `message_room(room_id, message)` | Posts one message to a Room; returns a send receipt, **not** a reply. |
+| `request_room_reply(room_id, nomi_id)` | Requests one Nomi participant's next message; returns their reply when available. |
 
-The current integration handles individual text chats. Nomi Rooms, voice, images, and full chat-history retrieval are not supported.
+The current integration supports one-to-one text chat and basic Rooms operations. Voice, images, Room editing/deletion, and full chat-history retrieval are not supported.
 
 ## How it works
 
 There are two parts, but **you don't have to create or manage them separately**:
 
 - **The Site runs the bridge.** It's the backend that talks to Nomi.ai through the API. You don't normally interact with its web page.
-- **The plugin connects ChatGPT to the Site.** It gives ChatGPT the `list_nomis` and `message_nomi` tools.
+- **The plugin connects ChatGPT to the Site.** It gives ChatGPT the Nomi and Room MCP tools.
 
 ```text
 Your ChatGPT conversation
@@ -53,7 +58,8 @@ The source is included in this repository:
 | Path | Purpose |
 | --- | --- |
 | `worker/index.js` | Nomi API adapter, MCP tool handlers, and the private status page. |
-| `nomi.test.mjs` | Mock-network tests for MCP calls, replies, errors, and no-retry behavior. |
+| `nomi.test.mjs` | Mock-network tests for individual chats. |
+| `rooms.test.mjs` | Mock-network tests for Rooms, error handling, and no-retry behavior. |
 | `scripts/build.sh` | Builds the Site artifact in `dist/`. |
 | `scripts/validate-artifact.mjs` | Checks the generated artifact. |
 | `.openai/hosting.json` | Site capability configuration; Work assigns the deployment's own Site identity. |
@@ -73,7 +79,7 @@ These commands use mocked Nomi responses and do not send real messages. The gene
 
 ## Requirements
 
-- A Nomi.ai account with API access and an API key.
+- A Nomi.ai account with API access and an API key. Rooms additionally require a Nomi plan entitled to the Room feature.
 - A ChatGPT account with access to Work / Sites and plugin installation. Availability depends on your plan and workspace configuration.
 
 ## Installation
@@ -93,10 +99,13 @@ Deploy the Nomi Bridge project from this repository as a private
 ChatGPT Site with its MCP server. Use the existing source code rather
 than reimplementing the integration from scratch.
 
-Expose its two MCP tools:
-- list_nomis(): list the names and UUIDs of my existing Nomis.
-- message_nomi(nomi_id, message): send one message to the selected
-  Nomi's main chat and return its actual reply when available.
+Expose the included MCP tools for individual chats and Rooms:
+- list_nomis(), message_nomi(nomi_id, message)
+- list_rooms(), create_room(name, nomi_ids, note, backchanneling_enabled)
+- message_room(room_id, message), request_room_reply(room_id, nomi_id)
+
+Room messages and reply requests are separate operations. Do not
+request a reply unless I explicitly authorize that action.
 
 API documentation: https://api.nomi.ai/docs/
 
@@ -153,20 +162,34 @@ You can also continue the conversation naturally without repeatedly specifying t
 
 > Show me my Nomis and let me choose who you should talk to.
 
+**Try a Room (with an existing Room)**
+
+> List my Nomi Rooms and their participants. Don't send any messages yet.
+
+> Send a short introduction to the selected Room, then request one reply from Nora. Only make these two calls, and show me the results.
+
 `[OOC: ...]` is a message convention, not a special API feature. Its effectiveness depends on how the companion interprets it.
 
 An extended conversation consists of successive tool calls in the ChatGPT conversation, not an autonomous background process.
 
 ## Nomi API behavior
 
-Nomi Bridge uses two official endpoints:
+Nomi Bridge uses these official endpoints:
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `GET` | `/v1/nomis` | List companions. |
 | `POST` | `/v1/nomis/{uuid}/chat` | Send a message using `{"messageText":"..."}` and obtain a reply. |
+| `GET` | `/v1/rooms` | List Rooms and their participants. |
+| `POST` | `/v1/rooms` | Create a Room with `name`, `note`, `backchannelingEnabled`, and `nomiUuids`. |
+| `POST` | `/v1/rooms/{uuid}/chat` | Post a message to a Room (send receipt only). |
+| `POST` | `/v1/rooms/{uuid}/chat/request` | Request a named Nomi participant's reply using `nomiUuid`. |
 
 Nomi documents a limit of **400 characters per message for free accounts** and **800 for subscribed accounts**, along with API rate limits.
+
+### Rooms and turn-taking
+
+A Room message is not a request for a Nomi response. A Game Master can send a scene through `message_room`, then use `request_room_reply` to choose one participant's turn. **Both actions send real messages and require explicit authorization.** Nomi's reply-request endpoint has a 15-second timeout; if it returns `NoReply`, inspect the Room on Nomi.ai before requesting another reply. Newly created Rooms can briefly return `RoomStillCreating`; do not retry write actions automatically. `InsufficientPlan` indicates that the account lacks Room API access. [Nomi's Rooms API](https://api.nomi.ai/docs/category/api-reference/).
 
 ### Timeouts and missing replies
 
@@ -200,7 +223,7 @@ The installation above describes a private, single-user deployment. A shared hos
 
 ## Versioning
 
-Nomi Bridge uses [Semantic Versioning](https://semver.org/). The current source version is **0.1.0**. The version in `package.json` matches the version advertised by the MCP server during initialization; the test suite checks that they stay in sync.
+Nomi Bridge uses [Semantic Versioning](https://semver.org/). The current source version is **0.2.0**. Rooms support is being tested before its release; the earlier `0.1.0` version is the initial individual-chat release. The version in `package.json` matches the version advertised by the MCP server during initialization; the test suite checks that they stay in sync.
 
 ## Contributing
 
